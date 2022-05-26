@@ -25,7 +25,8 @@ import (
 // ReadAutoCloser represents a pipe source that will be automatically closed
 // once it has been fully read.
 type ReadAutoCloser struct {
-	r io.ReadCloser
+	r io.ReadCloser   //代表读完即关闭接口，因此后面实现了其方法。ReadCloser包含Reader,Closer接口，Reader接口有Read方法，将一些字节读入，返回读取的字节和err。Closer接口则包含
+	//close方法。
 }
 
 // Read reads up to len(buf) bytes from the data source into buf. It returns the
@@ -33,11 +34,11 @@ type ReadAutoCloser struct {
 // 0, io.EOF. In the EOF case, the data source will be closed.
 func (a ReadAutoCloser) Read(buf []byte) (n int, err error) {
 	if a.r == nil {
-		return 0, io.EOF
+		return 0, io.EOF  //接口为空，读入0字节和返回io.EOF
 	}
-	n, err = a.r.Read(buf)
+	n, err = a.r.Read(buf)  //a的r的Read方法
 	if err == io.EOF {
-		a.Close()
+		a.Close()  //读完即关闭
 	}
 	return n, err
 }
@@ -48,17 +49,17 @@ func (a ReadAutoCloser) Close() error {
 	if a.r == nil {
 		return nil
 	}
-	return a.r.(io.Closer).Close()
+	return a.r.(io.Closer).Close()  
 }
 
 // NewReadAutoCloser returns an ReadAutoCloser wrapping the supplied Reader. If
 // the Reader is not a Closer, it will be wrapped in a NopCloser to make it
 // closable.
-func NewReadAutoCloser(r io.Reader) ReadAutoCloser {
-	if _, ok := r.(io.Closer); !ok {
-		return ReadAutoCloser{io.NopCloser(r)}
+func NewReadAutoCloser(r io.Reader) ReadAutoCloser {   
+	if _, ok := r.(io.Closer); !ok {         // 类型断言，
+		return ReadAutoCloser{io.NopCloser(r)}   
 	}
-	rc, ok := r.(io.ReadCloser)
+	rc, ok := r.(io.ReadCloser)   //类型断言
 	if !ok {
 		// This can never happen, but just in case it does...
 		panic("internal error: type assertion to io.ReadCloser failed")
@@ -69,7 +70,7 @@ func NewReadAutoCloser(r io.Reader) ReadAutoCloser {
 // Pipe represents a pipe object with an associated ReadAutoCloser.
 type Pipe struct {
 	Reader ReadAutoCloser
-	stdout io.Writer
+	stdout io.Writer //io.Writer接口封装write方法
 
 	// because pipe stages are concurrent, protect 'err'
 	mu  *sync.Mutex
