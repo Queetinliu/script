@@ -179,7 +179,7 @@ func Args() *Pipe {
 
 // Echo creates a pipe containing the supplied string.
 func Echo(s string) *Pipe {
-	return NewPipe().WithReader(strings.NewReader(s))
+	return NewPipe().WithReader(strings.NewReader(s)) //NewReader returns a new Reader reading from s. It is similar to bytes.NewBufferString but more efficient and read-only.
 }
 
 // Exec runs an external command and creates a pipe containing its combined
