@@ -54,7 +54,7 @@ func (a ReadAutoCloser) Close() error {
 
 // NewReadAutoCloser returns an ReadAutoCloser wrapping the supplied Reader. If
 // the Reader is not a Closer, it will be wrapped in a NopCloser to make it
-// closable.
+// closable.封装使其可关闭
 func NewReadAutoCloser(r io.Reader) ReadAutoCloser {   
 	if _, ok := r.(io.Closer); !ok {         // 类型断言，
 		return ReadAutoCloser{io.NopCloser(r)}   
@@ -72,7 +72,7 @@ type Pipe struct {
 	Reader ReadAutoCloser
 	stdout io.Writer //io.Writer接口封装write方法
 
-	// because pipe stages are concurrent, protect 'err'
+	// because pipe stages are concurrent, protect 'err' 互斥锁
 	mu  *sync.Mutex
 	err error
 }
