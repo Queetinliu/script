@@ -180,7 +180,7 @@ func Args() *Pipe {
 // Echo creates a pipe containing the supplied string.
 func Echo(s string) *Pipe {
 	return NewPipe().WithReader(strings.NewReader(s)) //NewReader returns a new Reader reading from s. It is similar to bytes.NewBufferString but more efficient and read-only.
-}
+}   
 
 // Exec runs an external command and creates a pipe containing its combined
 // output (stdout and stderr).
@@ -205,7 +205,7 @@ func Exec(s string) *Pipe {
 // File creates a pipe that reads from the file at the specified path.
 func File(name string) *Pipe {
 	p := NewPipe()
-	f, err := os.Open(name)
+	f, err := os.Open(name) //f是个*File，其实现了Read方法，因此可以进行后面操作。
 	if err != nil {
 		return p.WithError(err)
 	}
@@ -237,7 +237,7 @@ func FindFiles(path string) *Pipe {
 	if err := filepath.Walk(path, walkFn); err != nil {
 		return NewPipe().WithError(err)
 	}
-	return Slice(fileNames)
+	return Slice(fileNames)  //找文件
 }
 
 // IfExists tests whether the specified file exists, and creates a pipe whose
@@ -263,7 +263,7 @@ func IfExists(filename string) *Pipe {
 //
 // ListFiles does not recurse into subdirectories (use FindFiles for this).
 func ListFiles(path string) *Pipe {
-	if strings.ContainsAny(path, "[]^*?\\{}!") {
+	if strings.ContainsAny(path, "[]^*?\\{}!") {   //path包含这些说明有正则匹配，没有直接读目录
 		fileNames, err := filepath.Glob(path)
 		if err != nil {
 			return NewPipe().WithError(err)
